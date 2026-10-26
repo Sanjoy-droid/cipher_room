@@ -55,9 +55,9 @@ function Lobby() {
     mutationFn: async () => {
       const res = await client.room.create.post();
 
-      // if (res.status === 200) {
-      //   router.push(`/room/${res.data?.roomId}`);
-      // }
+      if (res.status === 200) {
+        router.push(`/room/${res.data?.roomId}`);
+      }
     },
   });
 
