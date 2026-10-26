@@ -1,10 +1,11 @@
 "use client";
 
+import { nanoid } from "nanoid";
 // import { useUsername } from "@/hooks/use-username"
 // import { client } from "@/lib/client"
 // import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const Page = () => {
   return (
@@ -16,7 +17,33 @@ const Page = () => {
 
 export default Page;
 
+const ANIMALS = ["wolf", "hawk", "bear", "shark"];
+const STORAGE_KEY = "Chat_username";
+
+const generateUsername = () => {
+  const word = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+  return `anonymos-${word}-${nanoid(5)}`;
+};
+
 function Lobby() {
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const main = () => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+
+      if (stored) {
+        setUsername(stored);
+        return;
+      }
+      const generated = generateUsername();
+      localStorage.setItem(STORAGE_KEY, generated);
+      setUsername(generated);
+    };
+
+    main();
+  });
+
   // const { username } = useUsername()
   const router = useRouter();
 
@@ -35,8 +62,8 @@ function Lobby() {
   // })
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 ">
+      <div className="w-full max-w-md space-y-8 ">
         {wasDestroyed && (
           <div className="bg-red-950/50 border border-red-900 p-4 text-center">
             <p className="text-red-500 text-sm font-bold">ROOM DESTROYED</p>
@@ -74,21 +101,24 @@ function Lobby() {
         <div className="border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
           <div className="space-y-5">
             {/* <div className="space-y-2"> */}
-            {/*   <label className="flex items-center text-zinc-500">Your Identity</label> */}
+            <label className="flex items-center text-zinc-500">
+              Your Identity
+            </label>
             {/**/}
-            {/*   <div className="flex items-center gap-3"> */}
-            {/*     <div className="flex-1 bg-zinc-950 border border-zinc-800 p-3 text-sm text-zinc-400 font-mono"> */}
-            {/*       {username} */}
-            {/*     </div> */}
-            {/*   </div> */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-zinc-950 border border-zinc-800 p-3 text-sm text-zinc-400 font-mono">
+                {username}
+              </div>
+            </div>
             {/* </div> */}
             {/**/}
-            {/* <button */}
-            {/*   onClick={() => createRoom()} */}
-            {/*   className="w-full bg-zinc-100 text-black p-3 text-sm font-bold hover:bg-zinc-50 hover:text-black transition-colors mt-2 cursor-pointer disabled:opacity-50" */}
-            {/* > */}
-            {/*   CREATE SECURE ROOM */}
-            {/* </button> */}
+            <button
+              // onClick={() => createRoom()}
+              onClick={() => console.log("clicked")}
+              className="w-full bg-zinc-100 text-black p-3 text-sm font-bold hover:bg-zinc-50 hover:text-black transition-colors mt-2 cursor-pointer disabled:opacity-50"
+            >
+              CREATE SECURE ROOM
+            </button>
           </div>
         </div>
       </div>
