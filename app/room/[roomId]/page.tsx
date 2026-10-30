@@ -5,12 +5,8 @@ import { client } from "@/lib/client";
 import { useRealtime } from "@/lib/realtime-client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-
-// {
-//     "roomId": "9UdOaEKQu1MCC87zs0zuY"
-// }
 
 function formatTimeRemaining(seconds: number) {
   const mins = Math.floor(seconds / 60);
@@ -24,16 +20,12 @@ const RoomContent = () => {
 
   const router = useRouter();
 
-  const searchParams = useSearchParams();
-  const wasDestroyed = searchParams.get("destroed") === "true";
-  const error = searchParams.get("error");
-
   const { username } = useUsername();
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [copyStatus, setCopyStatus] = useState("COPY");
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const { data: ttlData } = useQuery({
     queryKey: ["ttl", roomId],
@@ -43,9 +35,7 @@ const RoomContent = () => {
     },
   });
 
-  useEffect(() => {
-    if (ttlData?.ttl !== undefined) setTimeRemaining(ttlData.ttl);
-  }, [ttlData]);
+  const timeRemaining = countdown ?? ttlData?.ttl ?? null;
 
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", roomId],
@@ -65,13 +55,7 @@ const RoomContent = () => {
     }
 
     const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown(Math.max(0, timeRemaining - 1));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -87,12 +71,6 @@ const RoomContent = () => {
       setInput("");
     },
   });
-
-  // const { mutate: destroyRoom } = useMutation({
-  //   mutationFn: async () => {
-  //     await client.room.delete(null, { query: { roomId } });
-  //   },
-  // });
 
   useRealtime({
     channels: [roomId],
