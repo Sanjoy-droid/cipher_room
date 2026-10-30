@@ -25,7 +25,7 @@ A private, self-destructing chat room. Create a room, share the link, chat in re
 
 ```bash
 git clone <your-repo-url>
-cd cipher_room_
+cd cipher_room
 bun install
 ```
 
