@@ -1,4 +1,4 @@
-# >cipher_room\
+# > cipher_room
 
 A private, self-destructing chat room. Create a room, share the link, chat in realtime. When the timer hits zero (or someone hits **DESTROY NOW**), everything is deleted.
 
