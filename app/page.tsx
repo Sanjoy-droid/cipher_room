@@ -83,8 +83,7 @@ function Lobby() {
 
         <div className="space-y-3 text-center">
           <h1 className="bg-gradient-to-b from-green-300 to-green-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent drop-shadow-[0_0_25px_rgba(34,197,94,0.35)]">
-            {">"} cipher_room
-            <span className="ml-1 animate-pulse text-green-500">_</span>
+            {"> "}cipher_room
           </h1>
           <p className="text-sm text-zinc-500">
             No logs. No history. Just a timer.
