@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# >cipher_room\_
+
+A private, self-destructing chat room. Create a room, share the link, chat in realtime. When the timer hits zero (or someone hits **DESTROY NOW**), everything is deleted.
+
+## Features
+
+- One-click room creation with a unique ID
+- Realtime messaging
+- Auto-expiring rooms (10 min TTL) with a live countdown
+- Destroy a room instantly, wiping all messages
+- Token-based access per room, with room-full and room-not-found handling
+- Responsive terminal-style UI
+
+## Tech Stack
+
+- **Next.js** (App Router)
+- **Elysia** (API, mounted at `/api`)
+- **Eden Treaty** (end-to-end typed API client)
+- **TanStack Query** (data fetching and mutations)
+- **Upstash Redis** (rooms, messages, TTL)
+- **Upstash Realtime** (live message and destroy events)
+- **Tailwind CSS**, **Zod**, **nanoid**, **date-fns**
 
 ## Getting Started
 
-First, run the development server:
+```bash
+git clone <your-repo-url>
+cd cipher_room_
+bun install
+```
+
+Create `.env.local`:
+
+```env
+UPSTASH_REDIS_REST_URL=your_upstash_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+Run:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command         | Description          |
+| --------------- | -------------------- |
+| `bun dev`       | Start dev server     |
+| `bun run build` | Production build     |
+| `bun start`     | Run production build |
+| `bun run lint`  | Lint                 |
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+  page.tsx                      # Lobby (create room)
+  room/[roomId]/page.tsx        # Chat room
+  api/[[...slugs]]/route.ts     # Elysia API (room, messages)
+  api/[[...slugs]]/auth.ts      # Auth middleware
+hooks/use-username.ts           # Anonymous identity
+lib/
+  client.ts                     # Eden Treaty client
+  redis.ts                      # Upstash Redis client
+  realtime.ts                   # Realtime server
+  realtime-client.ts            # Realtime hook
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How It Works
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. `POST /api/room/create` creates a `meta:<roomId>` hash in Redis with a 10 minute TTL.
+2. Messages are pushed to `messages:<roomId>`, and their TTL follows the room's remaining time.
+3. Each message emits a realtime `chat.message` event, and clients refetch via TanStack Query.
+4. On expiry or destroy, a `chat.destroy` event redirects everyone to the lobby.
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deploy on [Vercel](https://vercel.com) and add the same env vars in project settings.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT
