@@ -1,11 +1,10 @@
 "use client";
 
-import { nanoid } from "nanoid";
-// import { useUsername } from "@/hooks/use-username"
+import { useUsername } from "@/hooks/use-username";
 import { client } from "@/lib/client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 
 const Page = () => {
   return (
@@ -17,34 +16,8 @@ const Page = () => {
 
 export default Page;
 
-const ANIMALS = ["wolf", "hawk", "bear", "shark"];
-const STORAGE_KEY = "Chat_username";
-
-const generateUsername = () => {
-  const word = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-  return `anonymos-${word}-${nanoid(5)}`;
-};
-
 function Lobby() {
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    const main = () => {
-      const stored = localStorage.getItem(STORAGE_KEY);
-
-      if (stored) {
-        setUsername(stored);
-        return;
-      }
-      const generated = generateUsername();
-      localStorage.setItem(STORAGE_KEY, generated);
-      setUsername(generated);
-    };
-
-    main();
-  });
-
-  // const { username } = useUsername()
+  const { username } = useUsername();
   const router = useRouter();
 
   const searchParams = useSearchParams();
