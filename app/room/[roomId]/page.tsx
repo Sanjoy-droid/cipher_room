@@ -98,17 +98,27 @@ const RoomContent = () => {
     setTimeout(() => setCopyStatus("COPY"), 2000);
   };
   return (
-    <main className="flex flex-col h-screen max-h-screen overflow-hidden">
-      <header className="border-b border-zinc-800 p-4 flex items-center justify-between bg-zinc-900/30">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col">
-            <span className="text-xs text-zinc-500 uppercase">Room ID</span>
+    <main className="relative isolate flex h-screen max-h-screen flex-col overflow-hidden bg-black font-mono text-zinc-100">
+      {/* ambient glow */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(34,197,94,0.10),transparent_55%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.06),transparent_50%)]" />
+
+      <header className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 px-5 py-3 backdrop-blur-md">
+        <div className="flex items-center gap-5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              Room ID
+            </span>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-green-500 truncate">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+              </span>
+              <span className="truncate text-sm font-bold text-green-500">
                 {roomId.slice(0, 10) + "..."}
               </span>
               <button
-                className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded text-zinc-400 hover:text-zinc-200 transition-colors"
+                className="cursor-pointer rounded border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-zinc-400 transition-all hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-100 active:scale-95"
                 onClick={copyLink}
               >
                 {copyStatus}
@@ -116,17 +126,17 @@ const RoomContent = () => {
             </div>
           </div>
 
-          <div className="h-8 w-px bg-zinc-800" />
+          <div className="h-9 w-px bg-gradient-to-b from-transparent via-zinc-700 to-transparent" />
 
-          <div className="flex flex-col">
-            <span className="text-xs text-zinc-500 uppercase">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
               Self-Destruct
             </span>
             <span
-              className={`text-sm font-bold flex items-center gap-2 ${
+              className={`flex w-fit items-center gap-2 rounded-md border px-2.5 py-0.5 text-sm font-bold tabular-nums transition-colors ${
                 timeRemaining !== null && timeRemaining < 60
-                  ? "text-red-500"
-                  : "text-amber-500"
+                  ? "animate-pulse border-red-900/60 bg-red-950/40 text-red-500"
+                  : "border-amber-900/40 bg-amber-950/20 text-amber-500"
               }`}
             >
               {timeRemaining !== null
@@ -137,7 +147,7 @@ const RoomContent = () => {
         </div>
 
         <button
-          className="text-xs bg-zinc-800 hover:bg-red-600 px-3 py-1.5 rounded text-zinc-400 hover:text-white font-bold transition-all group flex items-center gap-2 disabled:opacity-50"
+          className="group flex cursor-pointer items-center gap-2 rounded-md border border-red-900/40 bg-red-950/20 px-3.5 py-2 text-xs font-bold tracking-wider text-red-400 transition-all hover:border-red-600 hover:bg-red-600 hover:text-white hover:shadow-[0_0_20px_rgba(220,38,38,0.35)] active:scale-95 disabled:opacity-50"
           onClick={() => destroyRoom()}
         >
           <span className="group-hover:animate-pulse">💣</span>
@@ -146,33 +156,51 @@ const RoomContent = () => {
       </header>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+      <div className="flex-1 space-y-5 overflow-y-auto p-5 scrollbar-thin">
         {messages?.messages.length === 0 && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-zinc-600 text-sm font-mono">
+          <div className="flex h-full flex-col items-center justify-center gap-3">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/60 text-2xl">
+              🔒
+            </div>
+            <p className="font-mono text-sm text-zinc-600">
               No messages yet, start the conversation.
             </p>
           </div>
         )}
 
         {messages?.messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col items-start">
-            <div className="max-w-[80%] group">
-              <div className="flex items-baseline gap-3 mb-1">
+          <div
+            key={msg.id}
+            className={`flex ${
+              msg.sender === username ? "justify-end" : "justify-start"
+            }`}
+          >
+            <div
+              className={`group flex max-w-[80%] flex-col ${
+                msg.sender === username ? "items-end" : "items-start"
+              }`}
+            >
+              <div className="mb-1.5 flex items-baseline gap-3">
                 <span
-                  className={`text-xs font-bold ${
-                    msg.sender === username ? "text-green-500" : "text-blue-500"
+                  className={`text-[11px] font-bold uppercase tracking-wider ${
+                    msg.sender === username ? "text-green-500" : "text-blue-400"
                   }`}
                 >
                   {msg.sender === username ? "YOU" : msg.sender}
                 </span>
 
-                <span className="text-[10px] text-zinc-600">
+                <span className="text-[10px] tabular-nums text-zinc-600">
                   {format(msg.timestamp, "HH:mm")}
                 </span>
               </div>
 
-              <p className="text-sm text-zinc-300 leading-relaxed break-all">
+              <p
+                className={`break-all rounded-lg border px-3.5 py-2 text-sm leading-relaxed shadow-sm ${
+                  msg.sender === username
+                    ? "rounded-tr-none border-green-500/25 bg-green-500/10 text-green-50"
+                    : "rounded-tl-none border-zinc-800 bg-zinc-900/80 text-zinc-300"
+                }`}
+              >
                 {msg.text}
               </p>
             </div>
@@ -180,10 +208,10 @@ const RoomContent = () => {
         ))}
       </div>
 
-      <div className="p-4 border-t border-zinc-800 bg-zinc-900/30">
-        <div className="flex gap-4">
-          <div className="flex-1 relative group">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500 animate-pulse">
+      <div className="border-t border-zinc-800/80 bg-zinc-950/80 p-4 backdrop-blur-md">
+        <div className="flex gap-3">
+          <div className="group relative flex-1">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 animate-pulse font-bold text-green-500">
               {">"}
             </span>
             <input
@@ -198,7 +226,7 @@ const RoomContent = () => {
               }}
               placeholder="Type message..."
               onChange={(e) => setInput(e.target.value)}
-              className="w-full bg-black border border-zinc-800 focus:border-zinc-700 focus:outline-none transition-colors text-zinc-100 placeholder:text-zinc-700 py-3 pl-8 pr-4 text-sm"
+              className="w-full rounded-md border border-zinc-800 bg-black py-3 pl-9 pr-4 text-sm text-zinc-100 transition-all placeholder:text-zinc-700 focus:border-green-500/50 focus:outline-none focus:ring-2 focus:ring-green-500/15"
             />
           </div>
 
@@ -208,7 +236,7 @@ const RoomContent = () => {
               inputRef.current?.focus();
             }}
             disabled={!input.trim() || isPending}
-            className="bg-zinc-800 text-zinc-400 px-6 text-sm font-bold hover:text-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="cursor-pointer rounded-md bg-green-500 px-7 text-sm font-bold tracking-wider text-black transition-all hover:bg-green-400 hover:shadow-[0_0_20px_rgba(34,197,94,0.35)] active:scale-95 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none"
           >
             SEND
           </button>
@@ -222,8 +250,8 @@ const Page = () => {
   return (
     <Suspense
       fallback={
-        <main className="flex h-screen items-center justify-center text-zinc-600 text-sm font-mono">
-          Loading room...
+        <main className="flex h-screen items-center justify-center bg-black font-mono text-sm text-zinc-600">
+          <span className="animate-pulse">Loading room...</span>
         </main>
       }
     >
